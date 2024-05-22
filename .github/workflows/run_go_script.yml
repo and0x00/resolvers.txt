@@ -4,13 +4,16 @@ on:
   schedule:
     - cron: '*/10 * * * *'
 
+permissions:
+  contents: write
+
 jobs:
   run-script:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Go
       uses: actions/setup-go@v2
@@ -22,22 +25,22 @@ jobs:
 
     - name: Delete old check file
       run: |
-        if ls *.date 1> /dev/null 2>&1; then
-          rm *.date
+        if ls last_update.txt 1> /dev/null 2>&1; then
+          rm last_update.txt
         fi
 
     - name: Create new check file
       run: |
         DATE=$(date '+%Y-%m-%d_%H-%M-%S')
-        echo "$DATE" > "${DATE}.date"
+        echo "$DATE" > "last_update.txt"
 
     - name: Commit changes
       env:
-        GITHUB_TOKEN: ${{ secrets.ACTIONS_PAT }}
+        GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
       run: |
-        git config --local user.email "octocat@github.com"
-        git config --local user.name "Octocat"
-        git add resolvers.txt *.date
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add resolvers.txt last_update.txt
         DATE=$(date '+%Y-%m-%d %H:%M:%S')
         git commit -m "$DATE"
-        git push https://$GITHUB_TOKEN@github.com/${{ github.repository }}.git
+        git push

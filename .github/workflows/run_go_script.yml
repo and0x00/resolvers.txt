@@ -2,7 +2,7 @@ name: Run Go Script
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # Executa a cada 10 minutos
+    - cron: '*/10 * * * *'
 
 permissions:
   contents: write

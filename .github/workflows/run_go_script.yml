@@ -2,7 +2,7 @@ name: Run Go Script
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/10 * * * *'  # Executa a cada 10 minutos
 
 permissions:
   contents: write
@@ -19,6 +19,11 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: '^1.17'
+
+    - name: Set timezone
+      run: |
+        sudo ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
+        sudo dpkg-reconfigure -f noninteractive tzdata
 
     - name: Run script
       run: go run main.go -f providers.txt -o resolvers.txt
@@ -43,5 +48,4 @@ jobs:
         git add resolvers.txt last_update.txt
         DATE=$(date '+%Y-%m-%d %H:%M:%S')
         git commit -m "$DATE"
-        git pull --rebase
-        git push
+        git push https://$ACTIONS_TOKEN@github.com/${{ github.repository }}.git --force

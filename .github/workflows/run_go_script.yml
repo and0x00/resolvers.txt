@@ -20,11 +20,24 @@ jobs:
     - name: Run script
       run: go run main.go -f providers.txt -o resolvers.txt
 
+    - name: Delete old check file
+      run: |
+        if ls *.date 1> /dev/null 2>&1; then
+          rm *.date
+        fi
+
+    - name: Create new check file
+      run: |
+        DATE=$(date '+%Y-%m-%d_%H-%M-%S')
+        echo "$DATE" > "${DATE}.date"
+
     - name: Commit changes
+      env:
+        GITHUB_TOKEN: ${{ secrets.ACTIONS_PAT }}
       run: |
         git config --local user.email "octocat@github.com"
         git config --local user.name "Octocat"
-        git add resolvers.txt
+        git add resolvers.txt *.date
         DATE=$(date '+%Y-%m-%d %H:%M:%S')
         git commit -m "$DATE"
-        git push
+        git push https://$GITHUB_TOKEN@github.com/${{ github.repository }}.git

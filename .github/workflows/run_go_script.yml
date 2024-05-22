@@ -1,0 +1,30 @@
+name: Run Go Script
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '^1.17'
+
+    - name: Run script
+      run: go run main.go -f providers.txt -o resolvers.txt
+
+    - name: Commit changes
+      run: |
+        git config --local user.email "octocat@github.com"
+        git config --local user.name "Octocat"
+        git add resolvers.txt
+        DATE=$(date '+%Y-%m-%d %H:%M:%S')
+        git commit -m "$DATE"
+        git push
